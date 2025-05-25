@@ -51,7 +51,7 @@ class MovieTableViewCell: UITableViewCell {
     
     private let ratingStackView: UIStackView = {
         let stackView = UIStackView()
-        stackView.spacing = 4
+        stackView.spacing = 6
         stackView.axis = .horizontal
         stackView.distribution = .fill
         stackView.alignment = .center
@@ -88,9 +88,8 @@ class MovieTableViewCell: UITableViewCell {
     
     private func setupStyles() {
         moviePosterImageView.image = UIImage(named: "jio")
-        movieTitleLabel.text = "CDP India"
-        movieReleaseDateLabel.text = "Released on : 2nd Jun 2025"
-        movieRatingLabel.text = "4.5"
+        movieTitleLabel.numberOfLines = 0
+        movieReleaseDateLabel.numberOfLines = 0
         starImageView.image = UIImage(named: "movieRateIcon")
         starImageView.contentMode = .scaleAspectFill
     }
@@ -108,10 +107,12 @@ class MovieTableViewCell: UITableViewCell {
             // Movie Title
             movieTitleLabel.leadingAnchor.constraint(equalTo: moviePosterImageView.trailingAnchor, constant: 24),
             movieTitleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
+            movieTitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
             
             // Movie Release Date
             movieReleaseDateLabel.leadingAnchor.constraint(equalTo: moviePosterImageView.trailingAnchor, constant: 24),
             movieReleaseDateLabel.topAnchor.constraint(equalTo: movieTitleLabel.bottomAnchor, constant: 8),
+            movieReleaseDateLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
             
             // Rating Stack View
             ratingStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
@@ -121,5 +122,11 @@ class MovieTableViewCell: UITableViewCell {
             starImageView.heightAnchor.constraint(equalToConstant: 16),
             starImageView.widthAnchor.constraint(equalToConstant: 16),
         ])
+    }
+    
+    func setupMovieData(_ movie : Results) {
+        movieTitleLabel.text = movie.title ?? "NA"
+        movieReleaseDateLabel.text = "Released on : \(movie.releaseDate ?? "NA")"
+        movieRatingLabel.text = String(format: "%.1f", movie.voteAverage ?? 0.0)
     }
 }

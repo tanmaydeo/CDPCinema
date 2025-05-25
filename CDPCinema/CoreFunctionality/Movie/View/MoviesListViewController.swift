@@ -11,16 +11,44 @@ class MoviesListViewController: UIViewController {
 
     @IBOutlet weak var movieListTableView: UITableView!
     
+    private let movieViewModel : MovieViewModel = MovieViewModel()
+    
+    private var popularMoviesArray : [Results] = []
+    
+    lazy var activityIndicator : UIActivityIndicatorView = {
+        let loader = UIActivityIndicatorView(style: .large)
+        loader.tintColor = .black
+        return loader
+    }()
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setupNavigationBar()
+        activityIndicator.startAnimating()
+        movieViewModel.getPopularMovies(pageNo: 1) { popularMovies in
+            guard let popularMovies else {
+                self.setupNoPopularMoviesToShowView()
+                return
+            }
+            self.popularMoviesArray = popularMovies
+            DispatchQueue.main.async {
+                self.activityIndicator.stopAnimating()
+                self.movieListTableView.reloadData()
+            }
+        }
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        setupHierarchy()
         setupTableView()
         setupStyles()
+        setupConstraints()
+    }
+    
+    func setupNoPopularMoviesToShowView() {
+        
     }
     
     func setupNavigationBar() {
@@ -29,7 +57,7 @@ class MoviesListViewController: UIViewController {
     }
     
     func setupHierarchy() {
-        
+        self.view.addSubview(activityIndicator)
     }
     
     func setupTableView() {
@@ -42,14 +70,18 @@ class MoviesListViewController: UIViewController {
     }
     
     func setupConstraints() {
-        
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            activityIndicator.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: self.view.centerYAnchor)
+        ])
     }
 }
 
 extension MoviesListViewController : UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 10
+        return popularMoviesArray.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -57,6 +89,7 @@ extension MoviesListViewController : UITableViewDelegate, UITableViewDataSource 
             return UITableViewCell()
         }
         commonCell.selectionStyle = .none
+        commonCell.setupMovieData(popularMoviesArray[indexPath.row])
         return commonCell
     }
     
