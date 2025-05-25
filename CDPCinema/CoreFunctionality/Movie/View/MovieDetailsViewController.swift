@@ -7,6 +7,7 @@
 
 import UIKit
 import Kingfisher
+import RealmSwift
 
 class MovieDetailsViewController: UIViewController {
     
@@ -14,6 +15,7 @@ class MovieDetailsViewController: UIViewController {
     
     private let scrollView = UIScrollView()
     private let contentView = UIView()
+    private var realmDataBase : Realm?
     
     private let posterImageView: UIImageView = {
         let imageView = UIImageView()
@@ -28,7 +30,6 @@ class MovieDetailsViewController: UIViewController {
     private let titleRatingContainerView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .green
         return view
     }()
     
@@ -92,19 +93,41 @@ class MovieDetailsViewController: UIViewController {
         return stack
     }()
     
+    private var movieData : Results?
+    
+    private var isCurrentMovieFavourite : Bool = false
+    
     // MARK: - Lifecycle
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        setupNavigationBar()
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        do {
+            realmDataBase = try Realm()
+        }
+        catch(let error) {
+            print(error)
+        }
+        
         setupViewAppearance()
-        setupNavigationBar()
         setupViewHierarchy()
         setupConstraints()
+        
+        guard let movieData else {
+            return
+        }
+        isCurrentMovieFavourite = isMovieFavorited(movie: movieData)
     }
     
     // MARK: Init Method
     init(movie: Results) {
         super.init(nibName: nil, bundle: nil)
+        movieData = movie
         setupData(movie)
     }
     
@@ -117,7 +140,7 @@ class MovieDetailsViewController: UIViewController {
     private func setupData(_ movie : Results) {
         posterImageView.kf.setImage(with: URL(string: "https://image.tmdb.org/t/p/w500\(movie.posterPath ?? "/7Zx3wDG5bBtcfk8lcnCWDOLM4Y4.jpg")"))
         movieTitleLabel.text = movie.title ?? "NA"
-        ratingLabel.text = "\(String(format: "%.1f", movie.voteAverage ?? 0.0)) / 10"
+        ratingLabel.text = "\(String(format: "%.1f", movie.voteAverage)) / 10"
         releaseDateLabel.text = "Release Date: \(movie.formattedReleaseDate ?? "NA")"
         overviewLabel.text = movie.overview ?? "NA"
     }
@@ -131,10 +154,15 @@ class MovieDetailsViewController: UIViewController {
     private func setupNavigationBar() {
         title = "Movie Detail"
         navigationController?.navigationBar.prefersLargeTitles = false
-        
-        let favouriteButtonImage = UIImage(systemName: "heart")?.withRenderingMode(.alwaysTemplate)
-        let favouriteButton = UIBarButtonItem(image: favouriteButtonImage, style: .done, target: self, action: #selector(favouriteButtonTapped))
-        favouriteButton.tintColor = .black
+        updateFavouriteButton()
+    }
+    
+    private func updateFavouriteButton() {
+        let favouriteButtonImage = isCurrentMovieFavourite
+        ? UIImage(systemName: "heart.fill")?.withRenderingMode(.alwaysTemplate)
+        : UIImage(systemName: "heart")?.withRenderingMode(.alwaysTemplate)
+        let favouriteButton = UIBarButtonItem(image: favouriteButtonImage, style: .done, target: self, action: #selector(updateFavouritesDatabase))
+        favouriteButton.tintColor = isCurrentMovieFavourite ? .red : .black
         navigationItem.rightBarButtonItem = favouriteButton
     }
     
@@ -200,9 +228,40 @@ class MovieDetailsViewController: UIViewController {
     }
 }
 
-//MARK: @Objc funcs
+//MARK: Database Related Functions
 extension MovieDetailsViewController {
-    @objc private func favouriteButtonTapped() {
-        print("Favourite button tapped")
+    
+    func isMovieFavorited(movie: Results) -> Bool {
+        if let favouritedMovies = realmDataBase?.objects(Results.self) {
+            return favouritedMovies.contains { $0.id == movie.id }
+        }
+        return false
+    }
+    
+    @objc private func updateFavouritesDatabase() {
+        guard let movieData else {
+            return
+        }
+        realmDataBase?.beginWrite()
+        
+        if isCurrentMovieFavourite {
+            if let movieToRemove = realmDataBase?.objects(Results.self).filter("id == %@", movieData.id).first {
+                realmDataBase?.delete(movieToRemove)
+            }
+            isCurrentMovieFavourite = false
+        }
+        else {
+            realmDataBase?.add(movieData)
+            isCurrentMovieFavourite = true
+        }
+        
+        do {
+            try realmDataBase?.commitWrite()
+            updateFavouriteButton()
+            print("Successfully favourited / defavourited movie")
+        }
+        catch(let error) {
+            print("Failed to save data into realm -> \(error)")
+        }
     }
 }

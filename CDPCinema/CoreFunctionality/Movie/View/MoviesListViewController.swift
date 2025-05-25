@@ -99,6 +99,8 @@ extension MoviesListViewController : UITableViewDelegate, UITableViewDataSource 
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        self.navigationController?.pushViewController(MovieDetailsViewController(movie: popularMoviesArray[indexPath.row]), animated: true)
+        let movieDetailViewController = MovieDetailsViewController(movie: popularMoviesArray[indexPath.row])
+        movieDetailViewController.hidesBottomBarWhenPushed = true
+        self.navigationController?.pushViewController(movieDetailViewController, animated: true)
     }
 }

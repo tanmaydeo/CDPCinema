@@ -8,5 +8,5 @@ target 'CDPCinema' do
 
   # Pods for CDPCinema
   pod 'Kingfisher', '~> 7.0'
-
+  pod 'RealmSwift'
 end

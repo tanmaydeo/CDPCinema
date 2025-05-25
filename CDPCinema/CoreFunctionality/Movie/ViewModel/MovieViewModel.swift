@@ -15,7 +15,8 @@ class MovieViewModel {
         print(url)
         
         APIManager.sharedInstance.performRequest(url: url, headers: NetworkPath.shared.headers, objectType: MovieModel.self) { responseData in
-            completionHandler(responseData.results)
+            let resultsArray = Array(responseData.results)
+            completionHandler(resultsArray)
         } failure: { error in
             print("\(error.localizedDescription)")
         }

@@ -18,10 +18,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         guard let windowScene = (scene as? UIWindowScene) else { return }
         let myWindow = UIWindow(windowScene: windowScene)
-        let movieListController = UIStoryboard(name: "MoviesListViewController", bundle: nil).instantiateViewController(withIdentifier: "MoviesListVC")
-        let navigatioNController = UINavigationController(rootViewController: movieListController)
-        let rootViewController = navigatioNController
-        myWindow.rootViewController = rootViewController
+        let tabBarController = MainTabBarController()
+        myWindow.rootViewController = tabBarController
         window = myWindow
         window?.makeKeyAndVisible()
     }

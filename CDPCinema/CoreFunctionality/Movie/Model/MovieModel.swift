@@ -6,12 +6,13 @@
 //
 
 import Foundation
+import RealmSwift
 
-struct MovieModel : Decodable {
-    let page : Int?
-    let results : [Results]?
-    let totalPages : Int?
-    let totalResults : Int?
+class MovieModel : Object, Decodable {
+    @objc dynamic var page: Int = 0
+    @objc dynamic var totalPages: Int = 0
+    @objc dynamic var totalResults: Int = 0
+    let results = List<Results>()
     
     enum CodingKeys: String, CodingKey {
         
@@ -21,36 +22,32 @@ struct MovieModel : Decodable {
         case totalResults = "total_results"
     }
     
-    init(from decoder: Decoder) throws {
+    required convenience init(from decoder: Decoder) throws {
+        self.init()
         let values = try decoder.container(keyedBy: CodingKeys.self)
-        page = try values.decodeIfPresent(Int.self, forKey: .page)
-        results = try values.decodeIfPresent([Results].self, forKey: .results)
-        totalPages = try values.decodeIfPresent(Int.self, forKey: .totalPages)
-        totalResults = try values.decodeIfPresent(Int.self, forKey: .totalResults)
+        page = try values.decodeIfPresent(Int.self, forKey: .page) ?? 0
+        totalPages = try values.decodeIfPresent(Int.self, forKey: .totalPages) ?? 0
+        totalResults = try values.decodeIfPresent(Int.self, forKey: .totalResults) ?? 0
+        if let resultsArray = try values.decodeIfPresent([Results].self, forKey: .results) {
+            results.append(objectsIn: resultsArray)
+        }
     }
-    
 }
 
-struct Results : Decodable {
-    let adult : Bool?
-    let backdropPath : String?
-    let genreIds : [Int]?
-    let id : Int?
-    let originalLanguage : String?
-    let originalTitle : String?
-    let overview : String?
-    let popularity : Double?
-    let posterPath : String?
-    let releaseDate : String?
-    let title : String?
-    let video : Bool?
-    let voteAverage : Double?
-    let voteCount : Int?
+class Results: Object, Decodable {
+    @objc dynamic var id: Int = 0
+    @objc dynamic var originalTitle: String?
+    @objc dynamic var overview: String?
+    @objc dynamic var releaseDate: String?
+    @objc dynamic var title: String?
+    @objc dynamic var voteAverage: Double = 0
+    @objc dynamic var voteCount: Int = 0
+    @objc dynamic var posterPath: String?
+    @objc dynamic var backdropPath: String?
+    let genreIds = List<Int>()
     
-    //Some Custom Property for my understanding 
     var formattedReleaseDate: String? {
         guard let releaseDate = releaseDate else { return nil }
-        
         let inputFormatter = DateFormatter()
         inputFormatter.dateFormat = "yyyy-MM-dd"
         
@@ -60,42 +57,36 @@ struct Results : Decodable {
         if let date = inputFormatter.date(from: releaseDate) {
             return outputFormatter.string(from: date)
         }
-        
         return nil
     }
     
     enum CodingKeys: String, CodingKey {
-        case adult = "adult"
-        case backdropPath = "backdrop_path"
-        case genreIds = "genre_ids"
         case id = "id"
-        case originalLanguage = "original_language"
         case originalTitle = "original_title"
         case overview = "overview"
-        case popularity = "popularity"
-        case posterPath = "poster_path"
         case releaseDate = "release_date"
         case title = "title"
-        case video = "video"
         case voteAverage = "vote_average"
         case voteCount = "vote_count"
+        case posterPath = "poster_path"
+        case backdropPath = "backdrop_path"
+        case genreIds = "genre_ids"
     }
     
-    init(from decoder: Decoder) throws {
+    required convenience init(from decoder: Decoder) throws {
+        self.init()
         let values = try decoder.container(keyedBy: CodingKeys.self)
-        adult = try values.decodeIfPresent(Bool.self, forKey: .adult)
-        backdropPath = try values.decodeIfPresent(String.self, forKey: .backdropPath)
-        genreIds = try values.decodeIfPresent([Int].self, forKey: .genreIds)
-        id = try values.decodeIfPresent(Int.self, forKey: .id)
-        originalLanguage = try values.decodeIfPresent(String.self, forKey: .originalLanguage)
+        id = try values.decodeIfPresent(Int.self, forKey: .id) ?? 0
         originalTitle = try values.decodeIfPresent(String.self, forKey: .originalTitle)
         overview = try values.decodeIfPresent(String.self, forKey: .overview)
-        popularity = try values.decodeIfPresent(Double.self, forKey: .popularity)
-        posterPath = try values.decodeIfPresent(String.self, forKey: .posterPath)
         releaseDate = try values.decodeIfPresent(String.self, forKey: .releaseDate)
         title = try values.decodeIfPresent(String.self, forKey: .title)
-        video = try values.decodeIfPresent(Bool.self, forKey: .video)
-        voteAverage = try values.decodeIfPresent(Double.self, forKey: .voteAverage)
-        voteCount = try values.decodeIfPresent(Int.self, forKey: .voteCount)
-    }    
+        voteAverage = try values.decodeIfPresent(Double.self, forKey: .voteAverage) ?? 0
+        voteCount = try values.decodeIfPresent(Int.self, forKey: .voteCount) ?? 0
+        posterPath = try values.decodeIfPresent(String.self, forKey: .posterPath)
+        backdropPath = try values.decodeIfPresent(String.self, forKey: .backdropPath)
+        if let genreIdsArray = try values.decodeIfPresent([Int].self, forKey: .genreIds) {
+            genreIds.append(objectsIn: genreIdsArray)
+        }
+    }
 }
