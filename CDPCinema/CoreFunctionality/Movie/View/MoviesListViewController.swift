@@ -62,6 +62,7 @@ class MoviesListViewController: UIViewController {
     
     func setupTableView() {
         movieListTableView.register(MovieTableViewCell.self, forCellReuseIdentifier: "MovieTableViewCell")
+        movieListTableView.separatorStyle = .none
     }
     
     func setupStyles() {
@@ -94,10 +95,10 @@ extension MoviesListViewController : UITableViewDelegate, UITableViewDataSource 
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 110
+        return 120
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        self.navigationController?.pushViewController(MovieDetailsViewController(), animated: true)
+        self.navigationController?.pushViewController(MovieDetailsViewController(movie: popularMoviesArray[indexPath.row]), animated: true)
     }
 }

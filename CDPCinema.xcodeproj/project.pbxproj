@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0B04304F2DE2784C00750A9B /* AlamofireDynamic in Frameworks */ = {isa = PBXBuildFile; productRef = 0B04304E2DE2784C00750A9B /* AlamofireDynamic */; };
 		0B0430502DE2787300750A9B /* AlamofireDynamic in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 0B04304E2DE2784C00750A9B /* AlamofireDynamic */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		8C21C1EC509BD350E0AC0FD6 /* Pods_CDPCinema.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B6323CCA35ECDEA2A8EE1E5 /* Pods_CDPCinema.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -27,6 +28,9 @@
 
 /* Begin PBXFileReference section */
 		0B19EC392DE207DE00E1B6D4 /* CDPCinema.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CDPCinema.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6B6323CCA35ECDEA2A8EE1E5 /* Pods_CDPCinema.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CDPCinema.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		6C3D5D9DD79E256F6A8D9864 /* Pods-CDPCinema.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CDPCinema.release.xcconfig"; path = "Target Support Files/Pods-CDPCinema/Pods-CDPCinema.release.xcconfig"; sourceTree = "<group>"; };
+		F57516E3788A364F4BB3ED24 /* Pods-CDPCinema.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CDPCinema.debug.xcconfig"; path = "Target Support Files/Pods-CDPCinema/Pods-CDPCinema.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -56,6 +60,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0B04304F2DE2784C00750A9B /* AlamofireDynamic in Frameworks */,
+				8C21C1EC509BD350E0AC0FD6 /* Pods_CDPCinema.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -67,6 +72,8 @@
 			children = (
 				0B19EC682DE2099B00E1B6D4 /* CDPCinema */,
 				0B19EC3A2DE207DE00E1B6D4 /* Products */,
+				0B2AEEA99F13D42669C20F8C /* Pods */,
+				94B7982ADF831F36F9162FE1 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -78,6 +85,23 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		0B2AEEA99F13D42669C20F8C /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				F57516E3788A364F4BB3ED24 /* Pods-CDPCinema.debug.xcconfig */,
+				6C3D5D9DD79E256F6A8D9864 /* Pods-CDPCinema.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		94B7982ADF831F36F9162FE1 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				6B6323CCA35ECDEA2A8EE1E5 /* Pods_CDPCinema.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -85,10 +109,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0B19EC4C2DE207E000E1B6D4 /* Build configuration list for PBXNativeTarget "CDPCinema" */;
 			buildPhases = (
+				893F024DDBBB2643067AC540 /* [CP] Check Pods Manifest.lock */,
 				0B19EC352DE207DE00E1B6D4 /* Sources */,
 				0B19EC362DE207DE00E1B6D4 /* Frameworks */,
 				0B19EC372DE207DE00E1B6D4 /* Resources */,
 				0B19ECE52DE2747A00E1B6D4 /* Embed Frameworks */,
+				6DB5083BDCC07D5067558B83 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -152,6 +178,48 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		6DB5083BDCC07D5067558B83 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-CDPCinema/Pods-CDPCinema-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-CDPCinema/Pods-CDPCinema-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-CDPCinema/Pods-CDPCinema-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		893F024DDBBB2643067AC540 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-CDPCinema-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		0B19EC352DE207DE00E1B6D4 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -165,6 +233,7 @@
 /* Begin XCBuildConfiguration section */
 		0B19EC4D2DE207E000E1B6D4 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = F57516E3788A364F4BB3ED24 /* Pods-CDPCinema.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -193,6 +262,7 @@
 		};
 		0B19EC4E2DE207E000E1B6D4 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6C3D5D9DD79E256F6A8D9864 /* Pods-CDPCinema.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -256,7 +326,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -319,7 +389,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;

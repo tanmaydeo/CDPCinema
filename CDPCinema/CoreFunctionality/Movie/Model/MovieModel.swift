@@ -47,6 +47,23 @@ struct Results : Decodable {
     let voteAverage : Double?
     let voteCount : Int?
     
+    //Some Custom Property for my understanding 
+    var formattedReleaseDate: String? {
+        guard let releaseDate = releaseDate else { return nil }
+        
+        let inputFormatter = DateFormatter()
+        inputFormatter.dateFormat = "yyyy-MM-dd"
+        
+        let outputFormatter = DateFormatter()
+        outputFormatter.dateFormat = "d MMMM yyyy"
+        
+        if let date = inputFormatter.date(from: releaseDate) {
+            return outputFormatter.string(from: date)
+        }
+        
+        return nil
+    }
+    
     enum CodingKeys: String, CodingKey {
         case adult = "adult"
         case backdropPath = "backdrop_path"

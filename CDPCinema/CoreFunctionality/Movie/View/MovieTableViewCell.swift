@@ -6,14 +6,17 @@
 //
 
 import UIKit
+import Kingfisher
 
 class MovieTableViewCell: UITableViewCell {
     
     //MARK: View Declarations
     private let moviePosterImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFit
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.layer.cornerRadius = 8
         return imageView
     }()
     
@@ -59,6 +62,13 @@ class MovieTableViewCell: UITableViewCell {
         return stackView
     }()
     
+    private let divider : UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor.lightGray
+        return view
+    }()
+    
     //MARK: Initializations
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -81,6 +91,7 @@ class MovieTableViewCell: UITableViewCell {
         contentView.addSubview(movieTitleLabel)
         contentView.addSubview(movieReleaseDateLabel)
         contentView.addSubview(ratingStackView)
+        contentView.addSubview(divider)
         
         ratingStackView.addArrangedSubview(starImageView)
         ratingStackView.addArrangedSubview(movieRatingLabel)
@@ -92,17 +103,18 @@ class MovieTableViewCell: UITableViewCell {
         movieReleaseDateLabel.numberOfLines = 0
         starImageView.image = UIImage(named: "movieRateIcon")
         starImageView.contentMode = .scaleAspectFill
+        divider.layer.cornerRadius = divider.frame.size.width / 2
     }
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
             // Movie Poster
             moviePosterImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
-            moviePosterImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4),
-            moviePosterImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4),
+            moviePosterImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
+            moviePosterImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
             moviePosterImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             moviePosterImageView.heightAnchor.constraint(equalToConstant: 100),
-            moviePosterImageView.widthAnchor.constraint(equalToConstant: 50),
+            moviePosterImageView.widthAnchor.constraint(equalToConstant: 75),
             
             // Movie Title
             movieTitleLabel.leadingAnchor.constraint(equalTo: moviePosterImageView.trailingAnchor, constant: 24),
@@ -121,13 +133,18 @@ class MovieTableViewCell: UITableViewCell {
             // Star Image
             starImageView.heightAnchor.constraint(equalToConstant: 16),
             starImageView.widthAnchor.constraint(equalToConstant: 16),
+            
+            divider.heightAnchor.constraint(equalToConstant: 0.75),
+            divider.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 24),
+            divider.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -24),
+            divider.bottomAnchor.constraint(equalTo: self.contentView.bottomAnchor)
         ])
     }
     
     func setupMovieData(_ movie : Results) {
         movieTitleLabel.text = movie.title ?? "NA"
-        movieReleaseDateLabel.text = "Release Date : \(movie.releaseDate ?? "NA")"
+        movieReleaseDateLabel.text = "Release Date : \(movie.formattedReleaseDate ?? "NA")"
         movieRatingLabel.text = String(format: "%.1f", movie.voteAverage ?? 0.0)
-        //Poster Path = "https://image.tmdb.org/t/p/w500/7Zx3wDG5bBtcfk8lcnCWDOLM4Y4.jpg"
+        moviePosterImageView.kf.setImage(with: URL(string: "https://image.tmdb.org/t/p/w500\(movie.posterPath ?? "/7Zx3wDG5bBtcfk8lcnCWDOLM4Y4.jpg")"))
     }
 }
