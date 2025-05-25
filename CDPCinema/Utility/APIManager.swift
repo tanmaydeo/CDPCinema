@@ -51,13 +51,7 @@ final class APIManager {
         return Session(configuration: configuration, serverTrustManager: serverTrustManager)
     }()
     
-    func performRequest<T: Decodable>(
-        url: String,
-        headers: [String: String] = [:],
-        objectType: T.Type,
-        success: @escaping (_ responseData: T) -> Void,
-        failure: @escaping (_ error: NetworkError) -> Void
-    ) {
+    func performRequest<T: Decodable>(url: String, headers: [String: String] = [:],objectType: T.Type,success: @escaping (_ responseData: T) -> Void,failure: @escaping (_ error: NetworkError) -> Void) {
         guard let apiURL = URL(string: url) else {
             failure(.invalidURL)
             return

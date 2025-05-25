@@ -126,7 +126,8 @@ class MovieTableViewCell: UITableViewCell {
     
     func setupMovieData(_ movie : Results) {
         movieTitleLabel.text = movie.title ?? "NA"
-        movieReleaseDateLabel.text = "Released on : \(movie.releaseDate ?? "NA")"
+        movieReleaseDateLabel.text = "Release Date : \(movie.releaseDate ?? "NA")"
         movieRatingLabel.text = String(format: "%.1f", movie.voteAverage ?? 0.0)
+        //Poster Path = "https://image.tmdb.org/t/p/w500/7Zx3wDG5bBtcfk8lcnCWDOLM4Y4.jpg"
     }
 }
