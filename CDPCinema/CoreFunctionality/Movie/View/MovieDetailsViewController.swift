@@ -100,8 +100,8 @@ class MovieDetailsViewController: UIViewController {
         return label
     }()
     
-    private var movieData : Results?
-    
+    private var movieID: Int = 0
+    private var movieData : Movie?
     private var isCurrentMovieFavourite : Bool = false
     
     // MARK: - Lifecycle
@@ -116,27 +116,24 @@ class MovieDetailsViewController: UIViewController {
         
         do {
             realmDataBase = try Realm()
-        }
-        catch(let error) {
-            print(error)
+        } catch {
+            print("Realm initialization error: \(error)")
         }
         
         setupViewAppearance()
         setupViewHierarchy()
         setupConstraints()
         
-        guard let movieData else {
-            return
-        }
-        isCurrentMovieFavourite = isMovieFavorited(movie: movieData)
+        guard let movieData else { return }
+        isCurrentMovieFavourite = isMovieFavorited(id: movieID)
     }
     
     // MARK: Init Method
-    init(movie: Results) {
+    init(movie: Movie) {
         super.init(nibName: nil, bundle: nil)
         movieData = movie
+        movieID = movie.id
         setupData(movie)
-        
         NotificationCenter.default.addObserver(self, selector: #selector(applyTheme), name: .themeChanged, object: nil)
     }
     
@@ -150,7 +147,7 @@ class MovieDetailsViewController: UIViewController {
     
     // MARK: - Setup Methods
     
-    private func setupData(_ movie : Results) {
+    private func setupData(_ movie : Movie) {
         posterImageView.kf.setImage(with: URL(string: "https://image.tmdb.org/t/p/w500\(movie.posterPath ?? "/7Zx3wDG5bBtcfk8lcnCWDOLM4Y4.jpg")"))
         movieTitleLabel.text = movie.title ?? "NA"
         ratingLabel.text = "\(String(format: "%.1f", movie.voteAverage)) / 10"
@@ -178,7 +175,7 @@ class MovieDetailsViewController: UIViewController {
         ? UIImage(systemName: "heart.fill")?.withRenderingMode(.alwaysTemplate)
         : UIImage(systemName: "heart")?.withRenderingMode(.alwaysTemplate)
         let favouriteButton = UIBarButtonItem(image: favouriteButtonImage, style: .done, target: self, action: #selector(updateFavouritesDatabase))
-        favouriteButton.tintColor = isCurrentMovieFavourite ? .red : (ThemeManager.shared.currentTheme == .dark) ? .white : .black
+        favouriteButton.tintColor = isCurrentMovieFavourite ? .red : (ThemeManager.shared.currentTheme == .dark ? .white : .black)
         navigationItem.rightBarButtonItem = favouriteButton
     }
     
@@ -204,32 +201,27 @@ class MovieDetailsViewController: UIViewController {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            // ScrollView
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             
-            // ContentView
             contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
             
-            // Poster Image
             posterImageView.topAnchor.constraint(equalTo: contentView.layoutMarginsGuide.topAnchor, constant: 12),
             posterImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
             posterImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
             posterImageView.heightAnchor.constraint(equalToConstant: 320),
             
-            // Container Stack View
             containerStackView.topAnchor.constraint(equalTo: posterImageView.bottomAnchor, constant: 16),
             containerStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
             containerStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
             containerStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -24),
             
-            // Title and Rating Layout
             movieTitleLabel.topAnchor.constraint(equalTo: titleRatingContainerView.topAnchor),
             movieTitleLabel.leadingAnchor.constraint(equalTo: titleRatingContainerView.leadingAnchor),
             movieTitleLabel.trailingAnchor.constraint(lessThanOrEqualTo: ratingStackView.leadingAnchor, constant: -8),
@@ -238,7 +230,6 @@ class MovieDetailsViewController: UIViewController {
             ratingStackView.topAnchor.constraint(equalTo: titleRatingContainerView.topAnchor, constant: 4),
             ratingStackView.trailingAnchor.constraint(equalTo: titleRatingContainerView.trailingAnchor),
             
-            // Rating Icon Size
             ratingIconImageView.widthAnchor.constraint(equalToConstant: 20),
             ratingIconImageView.heightAnchor.constraint(equalToConstant: 20)
         ])
@@ -248,45 +239,92 @@ class MovieDetailsViewController: UIViewController {
 //MARK: Database Related Functions
 extension MovieDetailsViewController {
     
-    func isMovieFavorited(movie: Results) -> Bool {
-        if let favouritedMovies = realmDataBase?.objects(Results.self) {
-            return favouritedMovies.contains { $0.id == movie.id }
+    func isMovieFavorited(id: Int) -> Bool {
+        if let favouritedMovies = realmDataBase?.objects(Movie.self) {
+            return favouritedMovies.contains(where: { $0.id == id })
         }
         return false
     }
     
     @objc private func updateFavouritesDatabase() {
-        guard let movieData else {
-            return
-        }
-        realmDataBase?.beginWrite()
+        guard let movie = movieData else { return }
         
         if isCurrentMovieFavourite {
-            if let movieToRemove = realmDataBase?.objects(Results.self).filter("id == %@", movieData.id).first {
+            removeMovieFromFavourites(id: movie.id)
+        } else {
+            addMovieToFavourites(movie: movie)
+        }
+        
+        updateFavouriteButton()
+    }
+    
+    private func addMovieToFavourites(movie: Movie) {
+        do {
+            if let realm = realmDataBase {
+                try realm.write {
+                    let newMovie = Movie(value: movie) // create a copy
+                    realm.add(newMovie, update: .modified)
+                }
+                isCurrentMovieFavourite = true
+                sendNotificationForMovieFavourite(action: .added, movieTitle: movie.title ?? "Unknown")
+            }
+        } catch {
+            print("Error adding movie to favourites: \(error)")
+        }
+    }
+    
+    private func removeMovieFromFavourites(id: Int) {
+        guard let movieToRemove = realmDataBase?.object(ofType: Movie.self, forPrimaryKey: id) else { return }
+        
+        do {
+            let title = movieToRemove.title
+            try realmDataBase?.write {
                 realmDataBase?.delete(movieToRemove)
             }
             isCurrentMovieFavourite = false
-        }
-        else {
-            realmDataBase?.add(movieData)
-            isCurrentMovieFavourite = true
-        }
-        
-        do {
-            try realmDataBase?.commitWrite()
-            updateFavouriteButton()
-            print("Successfully favourited / defavourited movie")
-        }
-        catch(let error) {
-            print("Failed to save data into realm -> \(error)")
+            sendNotificationForMovieFavourite(action: .deleted, movieTitle: title ?? "Unknown")
+        } catch {
+            print("Error removing movie from favourites: \(error)")
         }
     }
 }
 
-//MARK: Theme funciton
+//MARK: Theme functions
 extension MovieDetailsViewController {
-    
     @objc func applyTheme() {
         setupViewAppearance()
+    }
+}
+
+//MARK: Notification Related Work
+extension MovieDetailsViewController {
+    
+    enum NotificationAction : String {
+        case added = "added"
+        case deleted = "deleted"
+    }
+    
+    private func sendNotificationForMovieFavourite(action: NotificationAction, movieTitle: String) {
+        let content = UNMutableNotificationContent()
+        content.title = "Favourites Updated"
+        
+        if action == .added {
+            content.body = "You added \(movieTitle) to favourites!"
+        } else {
+            content.body = "You deleted \(movieTitle) from favourites!"
+        }
+        
+        content.sound = .default
+        
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
+        
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("Notification scheduling error: \(error.localizedDescription)")
+            } else {
+                print("Notification sent successfully")
+            }
+        }
     }
 }

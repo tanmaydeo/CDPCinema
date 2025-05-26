@@ -152,7 +152,7 @@ class MovieTableViewCell: UITableViewCell {
         ])
     }
     
-    func setupMovieData(_ movie : Results) {
+    func setupMovieData(_ movie : Movie) {
         movieTitleLabel.text = movie.title ?? "NA"
         movieReleaseDateLabel.text = "Release Date : \(movie.formattedReleaseDate ?? "NA")"
         movieRatingLabel.text = String(format: "%.1f", movie.voteAverage)

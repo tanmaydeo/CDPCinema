@@ -89,10 +89,6 @@ final class ThemeManager {
         }
     }
     
-    func toggleTheme() {
-        currentTheme = (currentTheme == .light) ? .dark : .light
-    }
-    
     func applyTheme(navigationController: UINavigationController?, tabBarController: UITabBarController?) {
         let navAppearance = UINavigationBarAppearance()
         navAppearance.configureWithOpaqueBackground()

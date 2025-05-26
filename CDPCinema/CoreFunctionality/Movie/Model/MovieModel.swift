@@ -12,7 +12,7 @@ class MovieModel : Object, Decodable {
     @objc dynamic var page: Int = 0
     @objc dynamic var totalPages: Int = 0
     @objc dynamic var totalResults: Int = 0
-    let results = List<Results>()
+    let results = List<Movie>()
     
     enum CodingKeys: String, CodingKey {
         
@@ -28,13 +28,13 @@ class MovieModel : Object, Decodable {
         page = try values.decodeIfPresent(Int.self, forKey: .page) ?? 0
         totalPages = try values.decodeIfPresent(Int.self, forKey: .totalPages) ?? 0
         totalResults = try values.decodeIfPresent(Int.self, forKey: .totalResults) ?? 0
-        if let resultsArray = try values.decodeIfPresent([Results].self, forKey: .results) {
+        if let resultsArray = try values.decodeIfPresent([Movie].self, forKey: .results) {
             results.append(objectsIn: resultsArray)
         }
     }
 }
 
-class Results: Object, Decodable {
+class Movie: Object, Decodable {
     @objc dynamic var id: Int = 0
     @objc dynamic var originalTitle: String?
     @objc dynamic var overview: String?
@@ -45,6 +45,10 @@ class Results: Object, Decodable {
     @objc dynamic var posterPath: String?
     @objc dynamic var backdropPath: String?
     let genreIds = List<Int>()
+    
+    override static func primaryKey() -> String? {
+        return "id"
+    }
     
     var formattedReleaseDate: String? {
         guard let releaseDate = releaseDate else { return nil }

@@ -13,7 +13,7 @@ class SearchViewController: UIViewController {
     
     private var searchViewModel = SearchViewModel()
     
-    private var searchedMovies: [Results] = []
+    private var searchedMovies: [Movie] = []
     
     private var debounceWorkItem: DispatchWorkItem?
     

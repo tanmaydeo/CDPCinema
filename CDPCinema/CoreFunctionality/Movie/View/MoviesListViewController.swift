@@ -13,8 +13,8 @@ class MoviesListViewController: UIViewController {
     
     private let movieViewModel : MovieViewModel = MovieViewModel()
     
-    private var popularMoviesArray : [Results] = []
-    private var cachedData : [Results] = []
+    private var popularMoviesArray : [Movie] = []
+    private var cachedData : [Movie] = []
     private var movieGenre : [Genre] = []
     
     private var currentPage : Int = 1
@@ -86,6 +86,7 @@ class MoviesListViewController: UIViewController {
         self.view.backgroundColor = ThemeManager.shared.defaultBackgroundColor
         movieListTableView.backgroundColor = ThemeManager.shared.defaultBackgroundColor
         movieListTableView.indicatorStyle = ThemeManager.shared.currentTheme == .dark ? .white : .black
+        ThemeManager.shared.applyTheme(navigationController: self.navigationController, tabBarController: self.tabBarController)
     }
     
     func updateThemeForActivityIndicator() {
@@ -183,7 +184,5 @@ extension MoviesListViewController {
     @objc func applyTheme() {
         setupStyles()
         movieListTableView.reloadData()
-        
-        ThemeManager.shared.applyTheme(navigationController: self.navigationController, tabBarController: self.tabBarController)
     }
 }

@@ -14,7 +14,7 @@ class FavouritesViewController: UIViewController {
     
     private var realmDataBase : Realm?
     
-    private var favouriteMovies : [Results] = []
+    private var favouriteMovies : [Movie] = []
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -56,7 +56,7 @@ class FavouritesViewController: UIViewController {
     }
     
     func getFavouriteMovies() {
-        if let favouritedMovies = realmDataBase?.objects(Results.self) {
+        if let favouritedMovies = realmDataBase?.objects(Movie.self) {
             favouriteMovies = Array(favouritedMovies)
             DispatchQueue.main.async {
                 self.favouritesTableView.reloadData()

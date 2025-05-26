@@ -9,7 +9,7 @@ import Foundation
 
 class SearchViewModel {
     
-    func searchMovies(query: String, pageNo: Int, completionHandler: @escaping ([Results]?) -> Void) {
+    func searchMovies(query: String, pageNo: Int, completionHandler: @escaping ([Movie]?) -> Void) {
         let url = NetworkPath.shared.fullURLString(for: .searchMovies(query: query, page: pageNo))
         print("Search URL: \(url)")
         

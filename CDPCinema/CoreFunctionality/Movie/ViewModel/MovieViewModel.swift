@@ -10,7 +10,7 @@ import Foundation
 
 class MovieViewModel {
     
-    func getPopularMovies(pageNo : Int, completionHandler : @escaping ([Results]?, Int) -> Void) {
+    func getPopularMovies(pageNo : Int, completionHandler : @escaping ([Movie]?, Int) -> Void) {
         let url = NetworkPath.shared.fullURLString(for: .popularMovies(page: pageNo))
         print(url)
         
