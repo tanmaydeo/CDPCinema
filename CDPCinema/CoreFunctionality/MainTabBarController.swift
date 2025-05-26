@@ -21,7 +21,7 @@ class MainTabBarController: UITabBarController {
         let popularNav = UINavigationController(rootViewController: popularVC)
         
         //VC for Search
-        let exploreVC = UIStoryboard(name: "MoviesListViewController", bundle: nil).instantiateViewController(withIdentifier: "MoviesListVC")
+        let exploreVC = SearchViewController()
         exploreVC.tabBarItem = UITabBarItem(title: "Explore", image: UIImage(systemName: "magnifyingglass"), tag: 1)
         let exploreNav = UINavigationController(rootViewController: exploreVC)
         

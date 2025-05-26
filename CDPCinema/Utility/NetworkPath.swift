@@ -63,13 +63,13 @@ final class NetworkPath {
         ]
     }
     
-    func fullURLString(pageNo : Int) -> String {
-        self.queryParams["page"] = pageNo
-        var queryString = ""
-        if !queryParams.isEmpty {
-            queryString = queryParams.map { "\($0.key)=\($0.value)" }.joined(separator: "&")
-        }
-        return baseURL + relativePath + "?" + queryString
+    func fullURLString(for endpoint: EndpointType) -> String {
+        let path = endpoint.path
+        let queryParams = endpoint.queryParams
+        let queryString = queryParams
+            .map { "\($0.key)=\("\($0.value)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")" }
+            .joined(separator: "&")
+        return baseURL + path + "?" + queryString
     }
     
     func updateNetworkEnvironment(to environment: NetworkEnvironment) {
@@ -78,5 +78,44 @@ final class NetworkPath {
     
     func updateEndpointItem(to item: EndpointItem) {
         self.endpointItem = item
+    }
+}
+
+
+enum EndpointType {
+    case popularMovies(page: Int)
+    case searchMovies(query: String, page: Int)
+    
+    var path: String {
+        switch self {
+        case .popularMovies:
+            return "/3/movie/popular"
+        case .searchMovies:
+            return "/3/search/movie"
+        }
+    }
+    
+    var queryParams: [String: Any] {
+        switch self {
+        case .popularMovies(let page):
+            return [
+                "include_adult": "true",
+                "include_video": "true",
+                "language": "en-US",
+                "api_key": AppConstants.apiKey,
+                "page": page
+            ]
+        case .searchMovies(let query, let page):
+            return [
+                "language": "en-US",
+                "api_key": AppConstants.apiKey,
+                "query": query,
+                "page": page
+            ]
+        }
+    }
+    
+    var httpMethod: HTTPMethod {
+        return .get
     }
 }

@@ -14,6 +14,11 @@ class MoviesListViewController: UIViewController {
     private let movieViewModel : MovieViewModel = MovieViewModel()
     
     private var popularMoviesArray : [Results] = []
+    private var cachedData : [Results] = []
+    
+    private var currentPage : Int = 1
+    private var isLoading = false
+    private var totalPages = 0
     
     lazy var activityIndicator : UIActivityIndicatorView = {
         let loader = UIActivityIndicatorView(style: .large)
@@ -24,17 +29,14 @@ class MoviesListViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setupNavigationBar()
-        activityIndicator.startAnimating()
-        movieViewModel.getPopularMovies(pageNo: 1) { popularMovies in
-            guard let popularMovies else {
-                self.setupNoPopularMoviesToShowView()
-                return
-            }
-            self.popularMoviesArray = popularMovies
-            DispatchQueue.main.async {
-                self.activityIndicator.stopAnimating()
-                self.movieListTableView.reloadData()
-            }
+        
+        if cachedData.isEmpty {
+            activityIndicator.startAnimating()
+            loadPopularMovies(page: 1)
+        } else {
+            print("Used cache here")
+            popularMoviesArray = cachedData
+            movieListTableView.reloadData()
         }
     }
     
@@ -103,4 +105,47 @@ extension MoviesListViewController : UITableViewDelegate, UITableViewDataSource 
         movieDetailViewController.hidesBottomBarWhenPushed = true
         self.navigationController?.pushViewController(movieDetailViewController, animated: true)
     }
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        if indexPath.row == popularMoviesArray.count - 1 && !isLoading && currentPage < totalPages {
+            loadMoreMovies()
+        }
+    }
+}
+
+extension MoviesListViewController {
+    
+    func loadMoreMovies() {
+        currentPage += 1
+        loadPopularMovies(page: currentPage)
+    }
+    
+    func loadPopularMovies(page: Int) {
+        isLoading = true
+        movieViewModel.getPopularMovies(pageNo: page) { [weak self] movies,totalPages  in
+            guard let self = self else { return }
+            self.isLoading = false
+            self.activityIndicator.stopAnimating()
+            if self.totalPages == 0 {
+                self.totalPages = totalPages
+            }
+            
+            if let movies = movies {
+                if page == 1 {
+                    self.popularMoviesArray = movies
+                } else {
+                    self.popularMoviesArray.append(contentsOf: movies)
+                }
+                self.cachedData = self.popularMoviesArray
+                self.currentPage = page
+                
+                DispatchQueue.main.async {
+                    self.movieListTableView.reloadData()
+                }
+            } else {
+                print("Failed to fetch movies")
+            }
+        }
+    }
+    
 }
