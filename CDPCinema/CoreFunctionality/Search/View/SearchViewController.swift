@@ -19,7 +19,6 @@ class SearchViewController: UIViewController {
     
     private var searchResultsTableView : UITableView = {
         let tableView = UITableView()
-        tableView.backgroundColor = .white
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
     }()
@@ -35,6 +34,12 @@ class SearchViewController: UIViewController {
         setupStyles()
         setupTableView()
         setupConstraints()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(applyTheme), name: .themeChanged, object: nil)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: .themeChanged, object: nil)
     }
     
     func setupNavigationBar() {
@@ -51,7 +56,15 @@ class SearchViewController: UIViewController {
     }
     
     func setupStyles() {
-        view.backgroundColor = .white
+        view.backgroundColor = ThemeManager.shared.defaultBackgroundColor
+        searchResultsTableView.backgroundColor = ThemeManager.shared.defaultBackgroundColor
+        if let textField = searchController.searchBar.searchTextField as? UITextField {
+            textField.textColor = ThemeManager.shared.defaultTextColor
+            textField.attributedPlaceholder = NSAttributedString(
+                string: "Search movies",
+                attributes: [.foregroundColor: UIColor.lightGray]
+            )
+        }
     }
     
     func setupTableView() {
@@ -102,14 +115,14 @@ extension SearchViewController : UISearchResultsUpdating {
             searchResultsTableView.reloadData()
             return
         }
+        
         debounceWorkItem?.cancel()
         
         let workItem = DispatchWorkItem { [weak self] in
-            print("Debounce task executing for query: \(query)")
             self?.performSearch(query: query)
         }
         debounceWorkItem = workItem
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: workItem)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: workItem)
     }
     
     private func performSearch(query: String) {
@@ -123,6 +136,16 @@ extension SearchViewController : UISearchResultsUpdating {
                 self?.searchResultsTableView.reloadData()
             }
         }
+    }
+    
+}
+
+//MARK: Theme funciton
+extension SearchViewController {
+    
+    @objc func applyTheme() {
+        self.setupStyles()
+        searchResultsTableView.reloadData()
     }
     
 }

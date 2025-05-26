@@ -21,4 +21,16 @@ class MovieViewModel {
             print("\(error.localizedDescription)")
         }
     }
+    
+    func fetchGenres(completionHandler: @escaping ([Genre]) -> Void) {
+        let url = NetworkPath.shared.fullURLString(for: .genreList)
+        print(url)
+        
+        APIManager.sharedInstance.performRequest(url: url, headers: NetworkPath.shared.headers, objectType: GenreResponse.self) { responseData in
+            let genreArray = Array(responseData.genres)
+            completionHandler(genreArray)
+        } failure: { error in
+            print("\(error.localizedDescription)")
+        }
+    }
 }

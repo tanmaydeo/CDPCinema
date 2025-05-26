@@ -60,6 +60,11 @@ class Results: Object, Decodable {
         return nil
     }
     
+    var genreNames: String {
+        let names = genreIds.compactMap { Genre.genreMap[$0] }
+        return names.joined(separator: ", ")
+    }
+    
     enum CodingKeys: String, CodingKey {
         case id = "id"
         case originalTitle = "original_title"

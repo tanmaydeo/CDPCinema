@@ -81,10 +81,10 @@ final class NetworkPath {
     }
 }
 
-
 enum EndpointType {
     case popularMovies(page: Int)
     case searchMovies(query: String, page: Int)
+    case genreList
     
     var path: String {
         switch self {
@@ -92,6 +92,8 @@ enum EndpointType {
             return "/3/movie/popular"
         case .searchMovies:
             return "/3/search/movie"
+        case .genreList:
+            return "/3/genre/movie/list"
         }
     }
     
@@ -112,6 +114,11 @@ enum EndpointType {
                 "query": query,
                 "page": page
             ]
+        case .genreList:
+            return [
+                "language": "en-US",
+                "api_key": AppConstants.apiKey
+            ]
         }
     }
     
@@ -119,3 +126,4 @@ enum EndpointType {
         return .get
     }
 }
+

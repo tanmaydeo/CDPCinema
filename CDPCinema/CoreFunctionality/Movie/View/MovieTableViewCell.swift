@@ -22,7 +22,6 @@ class MovieTableViewCell: UITableViewCell {
     
     private let movieTitleLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
         label.numberOfLines = 1
         label.font = UIFont.systemFont(ofSize: 18, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -79,11 +78,18 @@ class MovieTableViewCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupHierarchy()
         setupStyles()
+        setupTheme()
         setupConstraints()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(applyTheme), name: .themeChanged, object: nil)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     private func setupHierarchy() {
@@ -104,6 +110,11 @@ class MovieTableViewCell: UITableViewCell {
         starImageView.image = UIImage(named: "movieRateIcon")
         starImageView.contentMode = .scaleAspectFill
         divider.layer.cornerRadius = divider.frame.size.width / 2
+    }
+    
+    private func setupTheme() {
+        movieTitleLabel.textColor = ThemeManager.shared.titleColor
+        contentView.backgroundColor = ThemeManager.shared.defaultBackgroundColor
     }
     
     private func setupConstraints() {
@@ -144,7 +155,11 @@ class MovieTableViewCell: UITableViewCell {
     func setupMovieData(_ movie : Results) {
         movieTitleLabel.text = movie.title ?? "NA"
         movieReleaseDateLabel.text = "Release Date : \(movie.formattedReleaseDate ?? "NA")"
-        movieRatingLabel.text = String(format: "%.1f", movie.voteAverage ?? 0.0)
+        movieRatingLabel.text = String(format: "%.1f", movie.voteAverage)
         moviePosterImageView.kf.setImage(with: URL(string: "https://image.tmdb.org/t/p/w500\(movie.posterPath ?? "/7Zx3wDG5bBtcfk8lcnCWDOLM4Y4.jpg")"))
+    }
+    
+    @objc private func applyTheme() {
+        setupTheme()
     }
 }

@@ -22,7 +22,6 @@ class MovieDetailsViewController: UIViewController {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
-        imageView.backgroundColor = .blue
         imageView.layer.cornerRadius = 10
         return imageView
     }()
@@ -93,6 +92,14 @@ class MovieDetailsViewController: UIViewController {
         return stack
     }()
     
+    private let movieGenreLabel : UILabel = {
+        let label = UILabel()
+        label.textColor = .lightGray
+        label.numberOfLines = 0
+        label.font = UIFont.systemFont(ofSize: 14, weight: .bold)
+        return label
+    }()
+    
     private var movieData : Results?
     
     private var isCurrentMovieFavourite : Bool = false
@@ -129,10 +136,16 @@ class MovieDetailsViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
         movieData = movie
         setupData(movie)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(applyTheme), name: .themeChanged, object: nil)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: .themeChanged, object: nil)
     }
     
     // MARK: - Setup Methods
@@ -143,12 +156,15 @@ class MovieDetailsViewController: UIViewController {
         ratingLabel.text = "\(String(format: "%.1f", movie.voteAverage)) / 10"
         releaseDateLabel.text = "Release Date: \(movie.formattedReleaseDate ?? "NA")"
         overviewLabel.text = movie.overview ?? "NA"
+        movieGenreLabel.text = "Genre : \(movie.genreNames)"
     }
     
     private func setupViewAppearance() {
-        view.backgroundColor = .white
+        view.backgroundColor = ThemeManager.shared.defaultBackgroundColor
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         contentView.translatesAutoresizingMaskIntoConstraints = false
+        movieTitleLabel.textColor = ThemeManager.shared.defaultTextColor
+        ratingLabel.textColor = ThemeManager.shared.defaultTextColor
     }
     
     private func setupNavigationBar() {
@@ -162,7 +178,7 @@ class MovieDetailsViewController: UIViewController {
         ? UIImage(systemName: "heart.fill")?.withRenderingMode(.alwaysTemplate)
         : UIImage(systemName: "heart")?.withRenderingMode(.alwaysTemplate)
         let favouriteButton = UIBarButtonItem(image: favouriteButtonImage, style: .done, target: self, action: #selector(updateFavouritesDatabase))
-        favouriteButton.tintColor = isCurrentMovieFavourite ? .red : .black
+        favouriteButton.tintColor = isCurrentMovieFavourite ? .red : (ThemeManager.shared.currentTheme == .dark) ? .white : .black
         navigationItem.rightBarButtonItem = favouriteButton
     }
     
@@ -177,6 +193,7 @@ class MovieDetailsViewController: UIViewController {
         containerStackView.addArrangedSubview(releaseDateLabel)
         containerStackView.setCustomSpacing(12, after: releaseDateLabel)
         containerStackView.addArrangedSubview(overviewLabel)
+        containerStackView.addArrangedSubview(movieGenreLabel)
         
         titleRatingContainerView.addSubview(movieTitleLabel)
         titleRatingContainerView.addSubview(ratingStackView)
@@ -263,5 +280,13 @@ extension MovieDetailsViewController {
         catch(let error) {
             print("Failed to save data into realm -> \(error)")
         }
+    }
+}
+
+//MARK: Theme funciton
+extension MovieDetailsViewController {
+    
+    @objc func applyTheme() {
+        setupViewAppearance()
     }
 }

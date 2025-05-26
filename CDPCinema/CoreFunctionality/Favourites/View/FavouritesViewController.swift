@@ -32,10 +32,17 @@ class FavouritesViewController: UIViewController {
         }
         setupStyles()
         setupTableView()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(applyTheme), name: .themeChanged, object: nil)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: .themeChanged, object: nil)
     }
     
     func setupStyles() {
-        self.view.backgroundColor = .white
+        self.view.backgroundColor =  ThemeManager.shared.defaultBackgroundColor
+        self.favouritesTableView.backgroundColor = ThemeManager.shared.defaultBackgroundColor
     }
     
     func setupNavigation() {
@@ -79,3 +86,10 @@ extension FavouritesViewController : UITableViewDelegate, UITableViewDataSource 
     }
 }
 
+extension FavouritesViewController {
+    
+    @objc func applyTheme() {
+        setupStyles()
+    }
+    
+}

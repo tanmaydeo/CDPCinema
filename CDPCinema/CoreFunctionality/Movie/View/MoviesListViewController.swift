@@ -15,24 +15,25 @@ class MoviesListViewController: UIViewController {
     
     private var popularMoviesArray : [Results] = []
     private var cachedData : [Results] = []
+    private var movieGenre : [Genre] = []
     
     private var currentPage : Int = 1
     private var isLoading = false
     private var totalPages = 0
     
-    lazy var activityIndicator : UIActivityIndicatorView = {
+    var activityIndicator : UIActivityIndicatorView = {
         let loader = UIActivityIndicatorView(style: .large)
-        loader.tintColor = .black
         return loader
     }()
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setupNavigationBar()
+        updateThemeForActivityIndicator()
         
         if cachedData.isEmpty {
-            activityIndicator.startAnimating()
             loadPopularMovies(page: 1)
+            fetchGenre()
         } else {
             print("Used cache here")
             popularMoviesArray = cachedData
@@ -47,10 +48,14 @@ class MoviesListViewController: UIViewController {
         setupTableView()
         setupStyles()
         setupConstraints()
+        setupThemeSwitchInNavigationBar()
+        activityIndicator.startAnimating()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(applyTheme), name: .themeChanged, object: nil)
     }
     
-    func setupNoPopularMoviesToShowView() {
-        
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: .themeChanged, object: nil)
     }
     
     func setupNavigationBar() {
@@ -58,8 +63,18 @@ class MoviesListViewController: UIViewController {
         self.navigationController?.navigationBar.prefersLargeTitles = true
     }
     
+    func setupThemeSwitchInNavigationBar() {
+        let themeSwitch = UISwitch()
+        themeSwitch.isOn = ThemeManager.shared.currentTheme == .dark
+        themeSwitch.addTarget(self, action: #selector(toggleThemeSwitch), for: .valueChanged)
+        
+        let switchItem = UIBarButtonItem(customView: themeSwitch)
+        self.navigationItem.leftBarButtonItem = switchItem
+    }
+    
     func setupHierarchy() {
         self.view.addSubview(activityIndicator)
+        activityIndicator.bringSubviewToFront(view)
     }
     
     func setupTableView() {
@@ -67,11 +82,16 @@ class MoviesListViewController: UIViewController {
         movieListTableView.separatorStyle = .none
     }
     
-    func setupStyles() {
-        self.view.backgroundColor = UIColor.white
-        self.movieListTableView.backgroundColor = UIColor.white
+    private func setupStyles() {
+        self.view.backgroundColor = ThemeManager.shared.defaultBackgroundColor
+        movieListTableView.backgroundColor = ThemeManager.shared.defaultBackgroundColor
+        movieListTableView.indicatorStyle = ThemeManager.shared.currentTheme == .dark ? .white : .black
     }
     
+    func updateThemeForActivityIndicator() {
+        activityIndicator.color = .gray
+    }
+
     func setupConstraints() {
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
@@ -125,7 +145,6 @@ extension MoviesListViewController {
         movieViewModel.getPopularMovies(pageNo: page) { [weak self] movies,totalPages  in
             guard let self = self else { return }
             self.isLoading = false
-            self.activityIndicator.stopAnimating()
             if self.totalPages == 0 {
                 self.totalPages = totalPages
             }
@@ -140,6 +159,7 @@ extension MoviesListViewController {
                 self.currentPage = page
                 
                 DispatchQueue.main.async {
+                    self.activityIndicator.stopAnimating()
                     self.movieListTableView.reloadData()
                 }
             } else {
@@ -148,4 +168,22 @@ extension MoviesListViewController {
         }
     }
     
+    func fetchGenre() {
+        movieViewModel.fetchGenres { genreArray in
+            self.movieGenre = genreArray
+            Genre.genreMap = Dictionary(uniqueKeysWithValues: genreArray.map { ($0.id, $0.name) })
+        }
+    }
+    
+    @objc func toggleThemeSwitch(_ sender: UISwitch) {
+        let selectedTheme: AppTheme = sender.isOn ? .dark : .light
+        ThemeManager.shared.currentTheme = selectedTheme
+    }
+
+    @objc func applyTheme() {
+        setupStyles()
+        movieListTableView.reloadData()
+        
+        ThemeManager.shared.applyTheme(navigationController: self.navigationController, tabBarController: self.tabBarController)
+    }
 }
